@@ -1,0 +1,19 @@
+{
+    "name": "Agoda - Total Price",
+    "author": "Alan Smith <alan@mralansmith.com>",
+    "description": "Displays the total price of the stay along side the price per night on Agoda.com",
+    "version": "1.0.0",
+    "incognito": "split",
+    "manifest_version": 2,
+    "content_scripts": [
+    {
+        "matches": ["*://*.agoda.com/*/search*"],
+        "js": ["content-script.js"]
+    }
+    ],
+    "icons": {
+      "16": "icons/16x16.png",
+      "48": "icons/48x48.png",
+     "128": "icons/128x128.png"
+    }
+  }
