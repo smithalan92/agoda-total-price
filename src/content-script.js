@@ -1,43 +1,47 @@
 
-const checkinElement = document.getElementsByClassName('SearchBoxTextDescription--checkIn')[0];
-const checkoutElement = document.getElementsByClassName('SearchBoxTextDescription--checkOut')[0];
+import utils from './utils';
 
-const checkInDate = new Date(checkinElement.dataset.date).getTime();
-const checkoutDate = new Date(checkoutElement.dataset.date).getTime();
-const days = Math.floor((checkoutDate - checkInDate) / (1000 * 60 * 60 * 24));
-const currencySymbol = document.getElementsByClassName('currency-trigger__text')[0].innerText;
-
+const { stayLength, currency } = utils.getBaseAgodaData();
 
 const run = () => {
-  const priceElements = document.getElementsByClassName('price-box__price__amount');
+  const priceElements = Array.from(document.getElementsByClassName('price-box__price__amount'));
+  const mapPriceElements = Array.from(document.getElementsByClassName('mapsPropertyCard-item-price'));
+  const mapMarkerElements = Array
+    .from(document.getElementsByClassName('propertyMarkerIcon-content'))
+    .filter((el) => !el.parentElement.getAttribute('hasProcessed'));
 
-  Array.from(priceElements).forEach((el) => {
-    if (el.getAttribute('total-calculated')) return;
+  if (priceElements.length) {
+    utils.updateElements({
+      elements: priceElements,
+      currency,
+      stayLength,
+      type: 'main',
+    });
+  }
 
-    const nightlyRate = Number(el.innerText);
+  if (mapPriceElements.length) {
+    utils.updateElements({
+      elements: mapPriceElements,
+      currency,
+      stayLength,
+      type: 'map',
+    });
+  }
 
-    const roughTotalForWeek = nightlyRate * days;
-
-    const totalForWeek = Number(roughTotalForWeek).toFixed(0);
-
-    el.setAttribute('total-calculated', true);
-
-    // eslint-disable-next-line
-    el.parentElement.innerHTML = `
-        <div style="display: flex; align-items: center; font-size: 18px">
-            <span style="font-weight: bold; color: #737373;">${currencySymbol}</span>
-            <span>
-                <span style="color: #737373;">${nightlyRate} per night</span>
-            </span>
-        </div>
-        <div style="display: flex; align-items: center; font-size: 18px">
-            <span style="font-weight: bold; color: #737373;">${currencySymbol}</span>
-            <span style="color: #737373;">${totalForWeek} total</span>
-        </div>
-    `;
-  });
-
-  window.requestAnimationFrame(run);
+  if (mapMarkerElements.length) {
+    utils.updateElements({
+      elements: mapMarkerElements,
+      currency,
+      stayLength,
+      type: 'mapMarker',
+    });
+  }
 };
 
-window.requestAnimationFrame(run);
+const elementToObserve = document.getElementsByTagName('body')[0];
+
+new MutationObserver(run).observe(elementToObserve, {
+  attributes: false,
+  childList: true,
+  subtree: true,
+});
